@@ -24,7 +24,7 @@ Download from (https://github.com/jordancn/doll-smuggler).
     
 ## Examples
 
-    doll-smuggler$ lein run --dolls (resources/available-dolls.txt) --max-weight 400
+    doll-smuggler$ lein run --dolls resources/available-dolls.txt --max-weight 400
 
 
 ### Tests
