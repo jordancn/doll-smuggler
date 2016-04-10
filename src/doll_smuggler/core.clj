@@ -78,6 +78,9 @@
 
 ;;;; Maximum value calulation
 
+;; Forward declaration for memoization function
+(def calculate-maximum-value-memoize)
+
 ;; Note: the following function was adapted from
 ;; [http://rosettacode.org/wiki/Knapsack_problem/0-1#Clojure] under the GNU FDL 1.2
 ;;
@@ -93,12 +96,15 @@
     :else
     (let [{item-weight :weight item-value :value} (get items item-index)]
       (if (> item-weight maximum-weight)
-        (calculate-maximum-value items (dec item-index) maximum-weight)
-        (let [[value-not-accepted set-not-accepted :as not-accepted] (calculate-maximum-value items (dec item-index) maximum-weight)
-          [value-accepted set-accepted :as accepted] (calculate-maximum-value items (dec item-index) (- maximum-weight item-weight))]
+        (calculate-maximum-value-memoize items (dec item-index) maximum-weight)
+        (let [[value-not-accepted set-not-accepted :as not-accepted] (calculate-maximum-value-memoize items (dec item-index) maximum-weight)
+          [value-accepted set-accepted :as accepted] (calculate-maximum-value-memoize items (dec item-index) (- maximum-weight item-weight))]
           (if (> (+ value-accepted item-value) value-not-accepted)
             [(+ value-accepted item-value) (conj set-accepted item-index)]
             not-accepted))))))
+
+;; Memoize the calculation function to reduce duplicate processing
+(def calculate-maximum-value-memoize (memoize calculate-maximum-value))
 
 (defn accepted-dolls
   "Reduce the set of dolls to those which were accepted"
@@ -114,7 +120,7 @@
   [dolls max-weight]
   
   (if (not= (count dolls) 0)
-    (let [[value indexes] (calculate-maximum-value dolls (-> dolls count dec) max-weight)]
+    (let [[value indexes] (calculate-maximum-value-memoize dolls (-> dolls count dec) max-weight)]
     (accepted-dolls dolls indexes))))
 
 
